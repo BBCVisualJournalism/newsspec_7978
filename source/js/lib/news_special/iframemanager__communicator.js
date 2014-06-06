@@ -7,7 +7,7 @@ define(['lib/news_special/bootstrap', 'lib/news_special/share_tools/controller']
     IFrameCommunicator.prototype =  {
         messageReceived: function (event) {
             console.log('message received from host', event);
-            news.pubsub.emit('ext:' + event.data);
+            news.pubsub.emit('ext:' + event.data.announcement, [event.data.details]);
         }
     };
 

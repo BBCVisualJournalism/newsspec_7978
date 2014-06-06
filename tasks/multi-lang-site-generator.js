@@ -8,8 +8,10 @@ module.exports = function (grunt) {
     var projectFiles = {
         'frame_1.html': 'frame_1.html.tmpl',
         'frame_2.html': 'frame_2.html.tmpl',
+        'frame_3.html': 'frame_3.html.tmpl',
         'frame_1.inc':  'frame_1.inc.tmpl',
         'frame_2.inc':  'frame_2.inc.tmpl',
+        'frame_3.inc':  'frame_3.inc.tmpl',
         'test.html':    'test.html.tmpl'
     };
 

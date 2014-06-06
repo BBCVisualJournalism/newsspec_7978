@@ -1,5 +1,6 @@
 define(['jquery'], function ($) {
     var hostCommunicator = {
+        iFrameIndex: undefined,
         postMessageAvailable: (window.postMessage ? true : false),
         init: function () {
             var externalHostCommunicator = this;
@@ -17,9 +18,38 @@ define(['jquery'], function ($) {
             });
 
             //################### @TODO - make this generic
-            $.on('frame2:changeColor', function () {
+
+            window.addEventListener('message', function (event) {
+                if (event.data.announcement === 'newsspec_iframe--number') {
+                    externalHostCommunicator.iframeIndex = event.data.details;
+                }
+            }, false);
+
+            $.on('frames:changeColor', function (color) {
                 externalHostCommunicator.sendDataByPostMessage({
-                    pubsub: 'frame2:changeColor'
+                    pubsub: {
+                        originator:   externalHostCommunicator.iframeIndex,
+                        announcement: 'frames:changeColor',
+                        details:      'gold'
+                    }
+                });
+            });
+            $.on('frame2:changeColor', function (color) {
+                externalHostCommunicator.sendDataByPostMessage({
+                    pubsub: {
+                        originator:   externalHostCommunicator.iframeIndex,
+                        announcement: 'frame2:changeColor',
+                        details:      'red'
+                    }
+                });
+            });
+            $.on('frame3:changeColor', function (color) {
+                externalHostCommunicator.sendDataByPostMessage({
+                    pubsub: {
+                        originator:   externalHostCommunicator.iframeIndex,
+                        announcement: 'frame3:changeColor',
+                        details:      'green'
+                    }
                 });
             });
             //###################

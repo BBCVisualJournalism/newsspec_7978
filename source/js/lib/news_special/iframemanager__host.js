@@ -204,18 +204,35 @@
         // All brand new iFrame communication content is below
         // #######################
         addIframeToSubscribers: function () {
+            var IframeWatcher = this,
+                iframeIndex;
+
             if (window.newsspec_iframes_subscribed === undefined) {
                 window.newsspec_iframes_subscribed = [];
             }
             window.newsspec_iframes_subscribed.push(this.elm);
-            console.log(window.newsspec_iframes_subscribed);
+
+            iframeIndex = window.newsspec_iframes_subscribed.length - 1;
+
+            setTimeout(function () {
+                IframeWatcher.forwardPubsubToIFrame(IframeWatcher.elm, {
+                    announcement: 'newsspec_iframe--number',
+                    details:      iframeIndex
+                });
+            }, 500);
         },
         forwardAnyPubsubsFromIframe: function () {
-            var iframes = window.newsspec_iframes_subscribed;
+            var iframes = window.newsspec_iframes_subscribed,
+                iFrameThatSentThePubsub;
             
             if (this.data.pubsub) {
+
+                iFrameThatSentThePubsub = this.data.pubsub.originator;
+
                 for (var i = 0; i < iframes.length; i++) {
-                    this.forwardPubsubToIFrame(iframes[i], this.data.pubsub);
+                    if (i !== iFrameThatSentThePubsub) {
+                        this.forwardPubsubToIFrame(iframes[i], this.data.pubsub);
+                    }
                 }
             }
         },
