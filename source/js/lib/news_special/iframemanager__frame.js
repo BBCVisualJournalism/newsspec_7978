@@ -37,7 +37,7 @@ define(['jquery'], function ($) {
             var talker_uid = window.location.pathname,
                 message = {
                     height:           this.height,
-                    hostPageCallback: this.hostPageCallback
+                    hostPageCallback: hostCommunicator.hostPageCallback
                 };
             if (istatsData) {
                 message.istats = istatsData;
@@ -71,7 +71,7 @@ define(['jquery'], function ($) {
         },
         hostPageCallback: false,
         setHostPageInitialization: function (callback) {
-            this.hostPageCallback = callback.toString();
+            hostCommunicator.hostPageCallback = callback.toString();
         }
     };
     return hostCommunicator;

@@ -11,13 +11,6 @@ define(['lib/news_special/bootstrap', 'lib/news_special/share_tools/controller']
             //     news.pubsub.emit('istats', ['quiz-end', 'newsspec-interaction', true]);
             // }, 2000);
 
-            // news.setStaticIframeHeight(2000);
-
-            // news.hostPageSetup(function () {
-            //     window.alert('sending instructions to the host page');
-            //     document.body.style.background = 'red';
-            // });
-
             news.$('.change_color').on('click', function () {
                 news.pubsub.emit('frame2:changeColor');
             });
