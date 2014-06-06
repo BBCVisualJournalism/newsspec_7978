@@ -11,13 +11,6 @@ define(['lib/news_special/bootstrap', 'lib/news_special/share_tools/controller']
             //     news.pubsub.emit('istats', ['quiz-end', 'newsspec-interaction', true]);
             // }, 2000);
 
-            shareTools.init('.main', {
-                storyPageUrl:  storyPageUrl,
-                header:       'Share this page',
-                message:      'Custom message',
-                hashtag:      'BBCNewsGraphics'
-            });
-
             // news.setStaticIframeHeight(2000);
 
             // news.hostPageSetup(function () {
@@ -25,6 +18,13 @@ define(['lib/news_special/bootstrap', 'lib/news_special/share_tools/controller']
             //     document.body.style.background = 'red';
             // });
 
+            news.$('.change_color').on('click', function () {
+                news.pubsub.emit('frame2:changeColor');
+            });
+
+            news.pubsub.on('frame2:changeColor', function () {
+                news.$('.frame2').css('background', 'red');
+            });
         }
     };
 

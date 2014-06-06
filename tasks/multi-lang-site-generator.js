@@ -6,10 +6,11 @@ module.exports = function (grunt) {
     // *************************************************************************
 
     var projectFiles = {
-        'index.html':          'index.html.tmpl',
-        'index.inc':           'index.inc.tmpl',
-        'half_wide/index.inc': 'halfwide_index.inc.tmpl',
-        'test.html':           'test.html.tmpl'
+        'frame_1.html': 'frame_1.html.tmpl',
+        'frame_2.html': 'frame_2.html.tmpl',
+        'frame_1.inc':  'frame_1.inc.tmpl',
+        'frame_2.inc':  'frame_2.inc.tmpl',
+        'test.html':    'test.html.tmpl'
     };
 
     // *************************************************************************
