@@ -1,4 +1,4 @@
-define(['lib/news_special/bootstrap', 'lib/news_special/share_tools/controller'], function (news, shareTools) {
+define(['lib/news_special/bootstrap', 'lib/news_special/share_tools/controller', 'lib/news_special/iframemanager__communicator'], function (news, shareTools) {
 
     return {
         init: function (storyPageUrl) {
@@ -15,7 +15,7 @@ define(['lib/news_special/bootstrap', 'lib/news_special/share_tools/controller']
                 news.pubsub.emit('frame2:changeColor');
             });
 
-            news.pubsub.on('frame2:changeColor', function () {
+            news.pubsub.on('ext:frame2:changeColor', function () {
                 news.$('.frame2').css('background', 'red');
             });
         }

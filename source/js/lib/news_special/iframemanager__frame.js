@@ -15,6 +15,14 @@ define(['jquery'], function ($) {
                 externalHostCommunicator.setHeight();
                 externalHostCommunicator.registerIstatsCall(actionType, actionName, viewLabel);
             });
+
+            //################### @TODO - make this generic
+            $.on('frame2:changeColor', function () {
+                externalHostCommunicator.sendDataByPostMessage({
+                    pubsub: 'frame2:changeColor'
+                });
+            });
+            //###################
         },
         height: 0,
         registerIstatsCall: function (actionType, actionName, viewLabel) {
@@ -33,15 +41,16 @@ define(['jquery'], function ($) {
         setupPostMessage: function () {
             window.setInterval(this.sendDataByPostMessage, 32);
         },
-        sendDataByPostMessage: function (istatsData) {
+        // ############################################################################ decoupled this from just the istats
+        sendDataByPostMessage: function (additionalMessage) {
             var talker_uid = window.location.pathname,
                 message = {
                     height:           this.height,
                     hostPageCallback: hostCommunicator.hostPageCallback
                 };
-            if (istatsData) {
-                message.istats = istatsData;
-            }
+
+            $.extend(message, additionalMessage || {});
+
             window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
         },
         setupIframeBridge: function () {
@@ -66,7 +75,6 @@ define(['jquery'], function ($) {
             if ($('.main').length > 0) {
                 heightValues.push($('.main')[0].scrollHeight);
             }
-            // return Math.max.apply(Math, [height, document.body.scrollHeight, $('.main').height()]),
             this.height = Math.max.apply(Math, heightValues);
         },
         hostPageCallback: false,

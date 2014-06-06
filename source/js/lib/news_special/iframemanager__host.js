@@ -66,7 +66,8 @@
                 iframeWatcher.getAnyInstructionsFromIframe();
                 iframeWatcher.setDimensions();
             });
-
+            
+            this.addIframeToSubscribers();
         },
         handleIframeLoad: function (startIframing) {
             // IMPORTANT: Had to make this an onload because the 
@@ -145,11 +146,6 @@
                 this.emptyThisIstatsQueue(this.elm.contentWindow.istatsQueue);
             }
         },
-        processCommunicationFromIframe: function (data) {
-            this.data = data;
-            this.setDimensions();
-            this.getAnyInstructionsFromIframe();
-        },
         istatsQueueLocked: false,
         emptyThisIstatsQueue: function (queue) {
             var istatCall;
@@ -197,6 +193,34 @@
             else {
                 return window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
             }
+        },
+        processCommunicationFromIframe: function (data) {
+            this.data = data;
+            this.setDimensions();
+            this.getAnyInstructionsFromIframe();
+            this.forwardAnyPubsubsFromIframe(); // ############################################################### ALSO ADDED THIS
+        },
+        // #######################
+        // All brand new iFrame communication content is below
+        // #######################
+        addIframeToSubscribers: function () {
+            if (window.newsspec_iframes_subscribed === undefined) {
+                window.newsspec_iframes_subscribed = [];
+            }
+            window.newsspec_iframes_subscribed.push(this.elm);
+            console.log(window.newsspec_iframes_subscribed);
+        },
+        forwardAnyPubsubsFromIframe: function () {
+            var iframes = window.newsspec_iframes_subscribed;
+            
+            if (this.data.pubsub) {
+                for (var i = 0; i < iframes.length; i++) {
+                    this.forwardPubsubToIFrame(iframes[i], this.data.pubsub);
+                }
+            }
+        },
+        forwardPubsubToIFrame: function (iframe, pubsubMessage) {
+            iframe.contentWindow.postMessage(pubsubMessage, '*');
         }
     };
 
