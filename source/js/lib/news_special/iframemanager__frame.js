@@ -1,6 +1,7 @@
 define(['jquery'], function ($) {
     var hostCommunicator = {
         iFrameIndex: undefined,
+        allPubsubs: [],
         postMessageAvailable: (window.postMessage ? true : false),
         init: function () {
             var externalHostCommunicator = this;
@@ -25,35 +26,42 @@ define(['jquery'], function ($) {
                 }
             }, false);
 
-            $.on('frames:changeColor', function (color) {
-                externalHostCommunicator.sendDataByPostMessage({
-                    pubsub: {
-                        originator:   externalHostCommunicator.iframeIndex,
-                        announcement: 'frames:changeColor',
-                        details:      'gold'
+            var originalEmitFunction = $.fn.emit;
+            $.fn.extend({
+                emit: function() {
+                    // original behavior - use function.apply to preserve context
+                    var extended = originalEmitFunction.apply(this, arguments),
+                        announcement = arguments[0],
+                        details = arguments[1];
+
+                    console.log('yes, the emit event has been overridden');
+                    // @TODO 
+                    if (!$.inArray(announcement, externalHostCommunicator.allPubsubs)) {
+                        externalHostCommunicator.push(announcement);
+                        $.on(announcement, function () {
+                            externalHostCommunicator.forwardPubsubToHost(announcement, details);
+                        });
                     }
-                });
+
+                    // preserve return value
+                    return extended;
+                }
             });
-            $.on('frame2:changeColor', function (color) {
-                externalHostCommunicator.sendDataByPostMessage({
-                    pubsub: {
-                        originator:   externalHostCommunicator.iframeIndex,
-                        announcement: 'frame2:changeColor',
-                        details:      'red'
-                    }
-                });
-            });
-            $.on('frame3:changeColor', function (color) {
-                externalHostCommunicator.sendDataByPostMessage({
-                    pubsub: {
-                        originator:   externalHostCommunicator.iframeIndex,
-                        announcement: 'frame3:changeColor',
-                        details:      'green'
-                    }
-                });
-            });
-            //###################
+
         },
+
+        forwardPubsubToHost: function (announcement, details) {
+            externalHostCommunicator.sendDataByPostMessage({
+                pubsub: {
+                    originator:   externalHostCommunicator.iframeIndex,
+                    announcement: announcement,
+                    details:      details
+                }
+            });
+        },
+
+        //###################
+
         height: 0,
         registerIstatsCall: function (actionType, actionName, viewLabel) {
             var istatsData = {
