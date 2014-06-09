@@ -49,6 +49,23 @@ define(['jquery'], function($) {
 
     // Publish a topic. Works exactly like trigger.
     $.emit = function() {
+
         o.trigger.apply( o, arguments );
+
+        // #################################################################### added lines
+        
+        var announcement = arguments[0],
+            details = arguments[1],
+            originatedFromHost = arguments[2] === 'originatedFromHost';
+
+        if (announcement !== 'event_from_iframe' && !originatedFromHost) {
+            $.emit('event_from_iframe', [announcement, details]);
+        }
     };
+
+    window.addEventListener('message', messageReceivedFromHost, false);
+
+    function messageReceivedFromHost(event) {
+        $.emit(event.data.announcement, [event.data.details], 'originatedFromHost');
+    }
 });

@@ -1,7 +1,6 @@
 define(['jquery'], function ($) {
     var hostCommunicator = {
         iFrameIndex: undefined,
-        allPubsubs: [],
         postMessageAvailable: (window.postMessage ? true : false),
         init: function () {
             var externalHostCommunicator = this;
@@ -18,7 +17,11 @@ define(['jquery'], function ($) {
                 externalHostCommunicator.registerIstatsCall(actionType, actionName, viewLabel);
             });
 
-            //################### @TODO - make this generic
+            //################### start
+
+            $.on('event_from_iframe', function (announcement, details) {
+                externalHostCommunicator.forwardPubsubToHost(announcement, details);
+            });
 
             window.addEventListener('message', function (event) {
                 if (event.data.announcement === 'newsspec_iframe--number') {
@@ -26,41 +29,19 @@ define(['jquery'], function ($) {
                 }
             }, false);
 
-            var originalEmitFunction = $.fn.emit;
-            $.fn.extend({
-                emit: function() {
-                    // original behavior - use function.apply to preserve context
-                    var extended = originalEmitFunction.apply(this, arguments),
-                        announcement = arguments[0],
-                        details = arguments[1];
-
-                    console.log('yes, the emit event has been overridden');
-                    // @TODO 
-                    if (!$.inArray(announcement, externalHostCommunicator.allPubsubs)) {
-                        externalHostCommunicator.push(announcement);
-                        $.on(announcement, function () {
-                            externalHostCommunicator.forwardPubsubToHost(announcement, details);
-                        });
-                    }
-
-                    // preserve return value
-                    return extended;
-                }
-            });
-
         },
 
         forwardPubsubToHost: function (announcement, details) {
-            externalHostCommunicator.sendDataByPostMessage({
+            this.sendDataByPostMessage({
                 pubsub: {
-                    originator:   externalHostCommunicator.iframeIndex,
+                    originator:   this.iframeIndex,
                     announcement: announcement,
                     details:      details
                 }
             });
         },
 
-        //###################
+        //################### end
 
         height: 0,
         registerIstatsCall: function (actionType, actionName, viewLabel) {

@@ -1,37 +1,35 @@
-define(['lib/news_special/bootstrap', 'lib/news_special/share_tools/controller', 'lib/news_special/iframemanager__communicator'], function (news, shareTools) {
+define(['lib/news_special/bootstrap', 'lib/news_special/share_tools/controller'], function (news, shareTools) {
 
     return {
         init: function (storyPageUrl) {
+            this.listenForButtonClicks();
+            this.subscribeToEvents();
+        },
 
-            // news.pubsub.emit('istats', ['app-initiated', 'newsspec-nonuser', true]);
-            // setTimeout(function () {
-            //     news.pubsub.emit('istats', ['panel-clicked', 'newsspec-interaction', 3]);
-            // }, 500);
-            // setTimeout(function () {
-            //     news.pubsub.emit('istats', ['quiz-end', 'newsspec-interaction', true]);
-            // }, 2000);
-
+        listenForButtonClicks: function () {
             news.$('.change_color_of_all_frames').on('click', function () {
-                news.pubsub.emit('frames:changeColor');
+                news.pubsub.emit('frames:changeColor', 'cyan');
             });
 
             news.$('.change_color_of_frame_2').on('click', function () {
-                news.pubsub.emit('frame2:changeColor');
+                news.pubsub.emit('frame2:changeColor', 'red');
             });
 
             news.$('.change_color_of_frame_3').on('click', function () {
-                news.pubsub.emit('frame3:changeColor');
+                news.pubsub.emit('frame3:changeColor', 'blue');
             });
+        },
 
-            news.pubsub.on('ext:frames:changeColor', function (color) {
+        subscribeToEvents: function () {
+            news.pubsub.on('frames:changeColor', function (color) {
                 news.$('.main').css('background', color);
             });
 
-            news.pubsub.on('ext:frame2:changeColor', function (color) {
+            news.pubsub.on('frame2:changeColor', function (color) {
                 news.$('.frame2').css('background', color);
             });
 
-            news.pubsub.on('ext:frame3:changeColor', function (color) {
+            news.pubsub.on('frame3:changeColor', function (color) {
                 news.$('.frame3').css('background', color);
             });
         }
