@@ -67,6 +67,9 @@ define(['jquery'], function($) {
 
     function messageReceivedFromHost(event) {
         emittedFromHost = true;
-        $.emit(event.data.announcement, [event.data.details]);
+        // shouldn't need this conditional, but PhantomJS/Jasmine complains otherwise.
+        if (event.data.announcement) {
+            $.emit(event.data.announcement, [event.data.details]);
+        }
     }
 });
