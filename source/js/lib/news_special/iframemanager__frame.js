@@ -24,6 +24,10 @@ define(['jquery'], function ($) {
             });
 
             window.addEventListener('message', externalHostCommunicator.setIFrameIndex, false);
+
+            externalHostCommunicator.sendDataByPostMessage({
+                iFrameReady: true
+            });
         },
 
         forwardPubsubToHost: function (announcement, details) {
@@ -39,9 +43,9 @@ define(['jquery'], function ($) {
         setIFrameIndex: function (event) {
             if (event.data.announcement === 'newsspec_iframe--number') {
                 hostCommunicator.iFrameIndex = event.data.details;
+                // only need to set the iframe index once
+                window.removeEventListener('message', hostCommunicator.setIFrameIndex, false);
             }
-            // only need to set the iframe index once
-            window.removeEventListener('message', hostCommunicator.setIFrameIndex, false);
         },
 
         //################### end
@@ -63,7 +67,6 @@ define(['jquery'], function ($) {
         setupPostMessage: function () {
             window.setInterval(this.sendDataByPostMessage, 32);
         },
-        // ############################################################################ decoupled this from just the istats
         sendDataByPostMessage: function (additionalMessage) {
             var talker_uid = window.location.pathname,
                 message = {

@@ -66,8 +66,6 @@
                 iframeWatcher.getAnyInstructionsFromIframe();
                 iframeWatcher.setDimensions();
             });
-            
-            this.addIframeToSubscribers();
         },
         handleIframeLoad: function (startIframing) {
             // IMPORTANT: Had to make this an onload because the 
@@ -180,6 +178,9 @@
                 eval('var func = ' + this.data.hostPageCallback);
                 func();
                 this.iframeInstructionsRan = true;
+            } else if (this.data.iFrameReady) {
+                console.log('iframe is ready - can now send message');
+                this.setupIframeCommunication();
             }
         },
         getPath: function (url) {
@@ -203,23 +204,27 @@
         // #######################
         // All brand new iFrame communication content is below
         // #######################
-        addIframeToSubscribers: function () {
-            var IframeWatcher = this,
-                iframeIndex;
-
+        setupIframeCommunication: function () {
+            this.initSubscribersList();
+            this.addIframeToSubscribers(this.elm);
+            this.giveIFrameItsIndex(this.elm);
+        },
+        initSubscribersList: function () {
             if (window.newsspec_iframes_subscribed === undefined) {
                 window.newsspec_iframes_subscribed = [];
             }
+        },
+        addIframeToSubscribers: function (iFrame) {
             window.newsspec_iframes_subscribed.push(this.elm);
+        },
+        giveIFrameItsIndex: function (iFrame) {
+            var IframeWatcher = this,
+                iFrameIndex = window.newsspec_iframes_subscribed.length - 1;
 
-            iframeIndex = window.newsspec_iframes_subscribed.length - 1;
-
-            setTimeout(function () {
-                IframeWatcher.forwardPubsubToIFrame(IframeWatcher.elm, {
-                    announcement: 'newsspec_iframe--number',
-                    details:      iframeIndex
-                });
-            }, 500);
+            IframeWatcher.forwardPubsubToIFrame(iFrame, {
+                announcement: 'newsspec_iframe--number',
+                details:      iFrameIndex
+            });
         },
         forwardAnyPubsubsFromIframe: function () {
             var iframes = window.newsspec_iframes_subscribed,

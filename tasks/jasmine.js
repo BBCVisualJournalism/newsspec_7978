@@ -3,7 +3,7 @@ module.exports = function (grunt) {
         allTests: {
             src: 'source/js/newsspec_<%= config.project_number %>/*.js',
             options: {
-                keepRunner: false,
+                keepRunner: true,
                 specs: 'source/js/spec/*Spec.js',
                 template: require('grunt-template-jasmine-requirejs'),
                 templateOptions: {

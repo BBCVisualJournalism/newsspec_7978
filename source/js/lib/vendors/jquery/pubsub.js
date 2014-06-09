@@ -19,7 +19,8 @@ define(['jquery'], function($) {
      */
 
     // Create a "dummy" jQuery object on which to bind, `off` and `trigger` event handlers. 
-    var o = $({});
+    var o = $({}),
+        emittedFromHost = false;
 
     /*
         Subscribe to a topic. Works just like `on`, except the passed handler
@@ -53,17 +54,19 @@ define(['jquery'], function($) {
         o.trigger.apply( o, arguments );
         
         var announcement         = arguments[0],
-            details              = arguments[1],
-            originatedFromIFrame = arguments[2] !== 'originatedFromHost';
+            details              = arguments[1];
 
-        if (originatedFromIFrame && announcement !== 'event_to_send_to_host') {
+        if (!emittedFromHost && announcement !== 'event_to_send_to_host') {
             $.emit('event_to_send_to_host', [announcement, details]);
         }
+
+        emittedFromHost = false;
     };
 
     window.addEventListener('message', messageReceivedFromHost, false);
 
     function messageReceivedFromHost(event) {
-        $.emit(event.data.announcement, [event.data.details], 'originatedFromHost');
+        emittedFromHost = true;
+        $.emit(event.data.announcement, [event.data.details]);
     }
 });
