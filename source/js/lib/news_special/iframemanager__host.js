@@ -198,7 +198,7 @@
             this.data = data;
             this.setDimensions();
             this.getAnyInstructionsFromIframe();
-            this.forwardAnyPubsubsFromIframe(); // ############################################################### ALSO ADDED THIS
+            this.forwardAnyPubsubsFromIframe();
         },
         // #######################
         // All brand new iFrame communication content is below

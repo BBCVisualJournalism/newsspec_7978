@@ -18,11 +18,20 @@ define(['lib/news_special/bootstrap', 'lib/news_special/share_tools/controller']
             news.$('.change_color_of_frame_3').on('click', function () {
                 news.pubsub.emit('frame3:changeColor', 'blue');
             });
+
+            news.$('.send_multiple_arguments').on('click', function () {
+                news.pubsub.emit('frame1:changeColorRandomly', ['black', 'yellow', 'indianred']);
+            });
         },
 
         subscribeToEvents: function () {
             news.pubsub.on('frames:changeColor', function (color) {
                 news.$('.main').css('background', color);
+            });
+
+            news.pubsub.on('frame1:changeColorRandomly', function (colors) {
+                var randomColor = colors[Math.floor(Math.random() * colors.length)];
+                news.$('.frame1').css('background', randomColor);
             });
 
             news.pubsub.on('frame2:changeColor', function (color) {

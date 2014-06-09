@@ -19,26 +19,29 @@ define(['jquery'], function ($) {
 
             //################### start
 
-            $.on('event_from_iframe', function (announcement, details) {
+            $.on('event_to_send_to_host', function (announcement, details) {
                 externalHostCommunicator.forwardPubsubToHost(announcement, details);
             });
 
-            window.addEventListener('message', function (event) {
-                if (event.data.announcement === 'newsspec_iframe--number') {
-                    externalHostCommunicator.iframeIndex = event.data.details;
-                }
-            }, false);
-
+            window.addEventListener('message', externalHostCommunicator.setIFrameIndex, false);
         },
 
         forwardPubsubToHost: function (announcement, details) {
             this.sendDataByPostMessage({
                 pubsub: {
-                    originator:   this.iframeIndex,
+                    originator:   this.iFrameIndex,
                     announcement: announcement,
                     details:      details
                 }
             });
+        },
+
+        setIFrameIndex: function (event) {
+            if (event.data.announcement === 'newsspec_iframe--number') {
+                hostCommunicator.iFrameIndex = event.data.details;
+            }
+            // only need to set the iframe index once
+            window.removeEventListener('message', hostCommunicator.setIFrameIndex, false);
         },
 
         //################### end

@@ -51,15 +51,13 @@ define(['jquery'], function($) {
     $.emit = function() {
 
         o.trigger.apply( o, arguments );
-
-        // #################################################################### added lines
         
-        var announcement = arguments[0],
-            details = arguments[1],
-            originatedFromHost = arguments[2] === 'originatedFromHost';
+        var announcement         = arguments[0],
+            details              = arguments[1],
+            originatedFromIFrame = arguments[2] !== 'originatedFromHost';
 
-        if (announcement !== 'event_from_iframe' && !originatedFromHost) {
-            $.emit('event_from_iframe', [announcement, details]);
+        if (originatedFromIFrame && announcement !== 'event_to_send_to_host') {
+            $.emit('event_to_send_to_host', [announcement, details]);
         }
     };
 
