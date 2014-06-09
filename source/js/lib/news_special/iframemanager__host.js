@@ -179,7 +179,6 @@
                 func();
                 this.iframeInstructionsRan = true;
             } else if (this.data.iFrameReady) {
-                console.log('iframe is ready - can now send message');
                 this.setupIframeCommunication();
             }
         },
@@ -201,9 +200,6 @@
             this.getAnyInstructionsFromIframe();
             this.forwardAnyPubsubsFromIframe();
         },
-        // #######################
-        // All brand new iFrame communication content is below
-        // #######################
         setupIframeCommunication: function () {
             this.initSubscribersList();
             this.addIframeToSubscribers(this.elm);
@@ -218,31 +214,32 @@
             window.newsspec_iframes_subscribed.push(this.elm);
         },
         giveIFrameItsIndex: function (iFrame) {
-            var IframeWatcher = this,
-                iFrameIndex = window.newsspec_iframes_subscribed.length - 1;
+            var iFrameIndex = window.newsspec_iframes_subscribed.length - 1;
 
-            IframeWatcher.forwardPubsubToIFrame(iFrame, {
-                announcement: 'newsspec_iframe--number',
+            this.forwardPubsubToIFrame(iFrame, {
+                announcement: 'newsspec_iframe::setting_index_from_host',
                 details:      iFrameIndex
             });
         },
         forwardAnyPubsubsFromIframe: function () {
-            var iframes = window.newsspec_iframes_subscribed,
-                iFrameThatSentThePubsub;
+            var iFrameThatSentThePubsub;
             
             if (this.data.pubsub) {
-
                 iFrameThatSentThePubsub = this.data.pubsub.originator;
+                this.forwardPubsubToAllBut(iFrameThatSentThePubsub);
+            }
+        },
+        forwardPubsubToAllBut: function (iFrameOriginatorIndex) {
+            var iframes = window.newsspec_iframes_subscribed;
 
-                for (var i = 0; i < iframes.length; i++) {
-                    if (i !== iFrameThatSentThePubsub) {
-                        this.forwardPubsubToIFrame(iframes[i], this.data.pubsub);
-                    }
+            for (var i = 0; i < iframes.length; i++) {
+                if (i !== iFrameOriginatorIndex) {
+                    this.forwardPubsubToIFrame(iframes[i], this.data.pubsub);
                 }
             }
         },
-        forwardPubsubToIFrame: function (iframe, pubsubMessage) {
-            iframe.contentWindow.postMessage(pubsubMessage, '*');
+        forwardPubsubToIFrame: function (iFrame, pubsubMessage) {
+            iFrame.contentWindow.postMessage(pubsubMessage, '*');
         }
     };
 

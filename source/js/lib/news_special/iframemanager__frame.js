@@ -41,7 +41,7 @@ define(['jquery'], function ($) {
         },
 
         setIFrameIndex: function (event) {
-            if (event.data.announcement === 'newsspec_iframe--number') {
+            if (event.data.announcement === 'newsspec_iframe::setting_index_from_host') {
                 hostCommunicator.iFrameIndex = event.data.details;
                 // only need to set the iframe index once
                 window.removeEventListener('message', hostCommunicator.setIFrameIndex, false);
