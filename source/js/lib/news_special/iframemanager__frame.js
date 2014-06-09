@@ -3,7 +3,6 @@ define(['jquery'], function ($) {
         iFrameIndex: undefined,
         postMessageAvailable: (window.postMessage ? true : false),
         init: function () {
-            var externalHostCommunicator = this;
             this.setHeight();
             this.startWatching();
             if (this.postMessageAvailable) {
@@ -12,24 +11,27 @@ define(['jquery'], function ($) {
             else {
                 this.setupIframeBridge();
             }
+
+            this.subscribeToEvents();
+
+            this.sendDataByPostMessage({
+                iFrameReady: true
+            });
+        },
+        subscribeToEvents: function () {
+            var externalHostCommunicator = this;
+
             $.on('istats', function (actionType, actionName, viewLabel) {
                 externalHostCommunicator.setHeight();
                 externalHostCommunicator.registerIstatsCall(actionType, actionName, viewLabel);
             });
-
-            //################### start
 
             $.on('event_to_send_to_host', function (announcement, details) {
                 externalHostCommunicator.forwardPubsubToHost(announcement, details);
             });
 
             window.addEventListener('message', externalHostCommunicator.setIFrameIndex, false);
-
-            externalHostCommunicator.sendDataByPostMessage({
-                iFrameReady: true
-            });
         },
-
         forwardPubsubToHost: function (announcement, details) {
             this.sendDataByPostMessage({
                 pubsub: {
@@ -39,7 +41,6 @@ define(['jquery'], function ($) {
                 }
             });
         },
-
         setIFrameIndex: function (event) {
             if (event.data.announcement === 'newsspec_iframe::setting_index_from_host') {
                 hostCommunicator.iFrameIndex = event.data.details;
@@ -47,9 +48,6 @@ define(['jquery'], function ($) {
                 window.removeEventListener('message', hostCommunicator.setIFrameIndex, false);
             }
         },
-
-        //################### end
-
         height: 0,
         registerIstatsCall: function (actionType, actionName, viewLabel) {
             var istatsData = {
