@@ -4,11 +4,11 @@ Exploring the communication between two iFrames.
 
 ## Ideology
 
-I didn't want the developer to have to change their workflow - JS modules should still communicate via pubsub in the same way they already do. Devs should be able to emit custom events from one iFrame and subscribe to it from another iFrame.
+I didn't want the developer to have to change their workflow - JS modules should still communicate via pubsub in the same way they already do. Devs should be able to emit custom events from one iFrame and subscribe to them from another iFrame.
 
 ## How it works
 
-I've made changed to pubsub.js, iframemanager__host.js and iframemanager__frame.js.
+I've made changes to pubsub.js, iframemanager__host.js and iframemanager__frame.js.
 
 When the iFrame is instantiated (in iframemanager__host), a reference to it is stored in a global JavaScript array `newsspec_iframes_subscribed`.
 
