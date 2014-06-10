@@ -31,6 +31,8 @@ define(['jquery'], function ($) {
             });
 
             window.addEventListener('message', externalHostCommunicator.setIFrameIndex, false);
+            // legacy ie
+            window.addEventListener('onmessage', externalHostCommunicator.setIFrameIndex, false);
         },
         forwardPubsubToHost: function (announcement, details) {
             this.sendDataByPostMessage({
@@ -42,7 +44,7 @@ define(['jquery'], function ($) {
             });
         },
         setIFrameIndex: function (event) {
-            if (event.data.announcement === 'newsspec_iframe::setting_index_from_host') {
+            if (event.data.announcement === 'setting_index_from_host') {
                 hostCommunicator.iFrameIndex = event.data.details;
                 // only need to set the iframe index once
                 window.removeEventListener('message', hostCommunicator.setIFrameIndex, false);

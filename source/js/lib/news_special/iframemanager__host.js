@@ -104,6 +104,9 @@
             window.addEventListener('message', function (e) {
                 iframeWatcher.postMessageCallback(e.data);
             }, false);
+            window.addEventListener('onmessage', function (e) {
+                iframeWatcher.postMessageCallback(e.data);
+            }, false);
         },
         postMessageCallback: function (data) {
             if (this.postBackMessageForThisIframe(data)) {
@@ -217,7 +220,7 @@
             var iFrameIndex = window.newsspec_iframes_subscribed.length - 1;
 
             this.forwardPubsubToIFrame(iFrame, {
-                announcement: 'newsspec_iframe::setting_index_from_host',
+                announcement: 'setting_index_from_host',
                 details:      iFrameIndex
             });
         },
@@ -239,7 +242,7 @@
             }
         },
         forwardPubsubToIFrame: function (iFrame, pubsubMessage) {
-            iFrame.contentWindow.postMessage(pubsubMessage, '*');
+            iFrame.contentWindow.postMessage('newsspec_iframe::' + JSON.stringify(pubsubMessage), '*');
         }
     };
 

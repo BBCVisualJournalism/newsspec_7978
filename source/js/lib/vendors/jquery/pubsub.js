@@ -63,12 +63,30 @@ define(['jquery'], function($) {
     };
 
     window.addEventListener('message', messageReceivedFromHost, false);
+    // legacy ie
+    window.addEventListener('onmessage', messageReceivedFromHost, false);
 
     function messageReceivedFromHost(event) {
+        var data = event.data;
+
         emittedFromHost = true;
+
+        if (postBackMessageForThisIframe(data)) {
+            data = getObjectNotationFromDataString(data);
+        }
+
         // shouldn't need this conditional, but PhantomJS/Jasmine complains otherwise.
-        if (event.data.announcement) {
-            $.emit(event.data.announcement, event.data.details);
+        if (data.announcement) {
+            $.emit(data.announcement, data.details);
         }
     }
+
+    var postBackMessageForThisIframe = function (data) {
+        return data && (data.split('::')[0] === 'newsspec_iframe');
+    };
+
+    var getObjectNotationFromDataString = function (data) {
+        return JSON.parse(data.split('::')[1]);
+    };
+
 });
