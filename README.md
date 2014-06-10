@@ -18,7 +18,7 @@ As the application runs, if an event is emitted it is picked up in pubsub.js and
 
 ## iFrame scaffold
 
-This project was built using the iFrame scaffold v1.4
+This project was built using the iFrame scaffold v1.4.1
 
 ## License
 Copyright (c) 2014 BBC
