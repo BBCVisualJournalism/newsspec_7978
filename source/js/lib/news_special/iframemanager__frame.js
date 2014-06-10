@@ -1,6 +1,6 @@
 define(['jquery'], function ($) {
     var hostCommunicator = {
-        iFrameIndex: undefined,
+        iFrameIndex: false,
         postMessageAvailable: (window.postMessage ? true : false),
         init: function () {
             this.setHeight();
@@ -42,10 +42,15 @@ define(['jquery'], function ($) {
             });
         },
         setIFrameIndex: function (event) {
-            if (event.data.announcement === 'setting_index_from_host') {
-                hostCommunicator.iFrameIndex = event.data.details;
+
+            var data = JSON.parse(event.data.split('::')[1]);
+
+            if (data.announcement === 'setting_index_from_host') {
+                hostCommunicator.iFrameIndex = data.details[0];
                 // only need to set the iframe index once
                 window.removeEventListener('message', hostCommunicator.setIFrameIndex, false);
+
+                console.log('iFrame index: ', hostCommunicator.iFrameIndex);
             }
         },
         height: 0,

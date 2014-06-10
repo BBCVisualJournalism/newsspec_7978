@@ -218,7 +218,7 @@
 
             this.forwardPubsubToIFrame(iFrame, {
                 announcement: 'setting_index_from_host',
-                details:      iFrameIndex
+                details:      [iFrameIndex]
             });
         },
         forwardAnyPubsubsFromIframe: function () {

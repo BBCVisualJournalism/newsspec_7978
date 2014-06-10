@@ -20,7 +20,7 @@ define(['jquery'], function($) {
 
     // Create a "dummy" jQuery object on which to bind, `off` and `trigger` event handlers. 
     var o = $({}),
-        emittedFromHost = false;
+        IFrameCommunicator;
 
     /*
         Subscribe to a topic. Works just like `on`, except the passed handler
@@ -50,41 +50,45 @@ define(['jquery'], function($) {
 
     // Publish a topic. Works exactly like trigger.
     $.emit = function() {
+        console.log(arguments);
         o.trigger.apply( o, arguments );
-        
-        var announcement         = arguments[0],
-            details              = arguments[1];
-
-        if (!emittedFromHost && announcement !== 'event_to_send_to_host') {
-            $.emit('event_to_send_to_host', [announcement, details]);
-        }
-
-        emittedFromHost = false;
+        IFrameCommunicator.forwardToHost(arguments);
     };
 
-    window.addEventListener('message', messageReceivedFromHost, false);
+    var emittedFromHost = false;
 
-    function messageReceivedFromHost(event) {
-        var data = event.data;
+    IFrameCommunicator = {
 
-        emittedFromHost = true;
+        init: function () {
+            var externalIFrameCommunicator = this;
+            window.addEventListener('message', externalIFrameCommunicator.messageReceivedFromHost, false);
+        },
 
-        if (postBackMessageForThisIframe(data)) {
-            data = getObjectNotationFromDataString(data);
+        //emittedFromHost: false,
+
+        forwardToHost: function () {
+            var announcement = arguments[0],
+                details      = arguments[1];
+
+            if (!emittedFromHost && announcement !== 'event_to_send_to_host') {
+                $.emit('event_to_send_to_host', [announcement, details]);
+            }
+
+            emittedFromHost = false;
+        },
+
+        messageReceivedFromHost: function (event) {
+            var data = JSON.parse(event.data.split('::')[1]);
+
+            emittedFromHost = true;
+
+            // shouldn't need this conditional, but PhantomJS/Jasmine complains otherwise.
+            if (data.announcement) {
+                $.emit(data.announcement, data.details);
+            }
         }
-
-        // shouldn't need this conditional, but PhantomJS/Jasmine complains otherwise.
-        if (data.announcement) {
-            $.emit(data.announcement, data.details);
-        }
-    }
-
-    var postBackMessageForThisIframe = function (data) {
-        return data && (data.split('::')[0] === 'newsspec_iframe');
     };
 
-    var getObjectNotationFromDataString = function (data) {
-        return JSON.parse(data.split('::')[1]);
-    };
+    IFrameCommunicator.init();
 
 });
