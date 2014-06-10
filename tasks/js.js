@@ -1,11 +1,22 @@
 module.exports = function (grunt) {
 
-    grunt.config(['copy', 'jsMinimum'], {
+    grunt.registerTask('copy_js_minimum', ['copy:requirejs', 'copy:legacyie'])
+
+    grunt.config(['copy', 'requirejs'], {
         files: [{
             expand: true,
             cwd:    'source/js/lib/vendors/require/',
             src:    ['*.js'],
             dest:   'content/<%= config.services.default %>/js/lib/vendors/require/'
+        }]
+    });
+
+    grunt.config(['copy', 'legacyie'], {
+        files: [{
+            expand: true,
+            cwd:    'source/js/lib/vendors/',
+            src:    ['legacy-ie-polyfills.js'],
+            dest:   'content/<%= config.services.default %>/js/lib/vendors/'
         }]
     });
 
@@ -38,7 +49,7 @@ module.exports = function (grunt) {
             grunt.task.run('copy:jsAll'); 
             grunt.task.run('uglify'); 
         } else {
-            grunt.task.run('copy:jsMinimum'); 
+            grunt.task.run('copy_js_minimum'); 
         }
     });
 
