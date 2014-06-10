@@ -104,9 +104,6 @@
             window.addEventListener('message', function (e) {
                 iframeWatcher.postMessageCallback(e.data);
             }, false);
-            window.addEventListener('onmessage', function (e) {
-                iframeWatcher.postMessageCallback(e.data);
-            }, false);
         },
         postMessageCallback: function (data) {
             if (this.postBackMessageForThisIframe(data)) {

@@ -63,8 +63,6 @@ define(['jquery'], function($) {
     };
 
     window.addEventListener('message', messageReceivedFromHost, false);
-    // legacy ie
-    window.addEventListener('onmessage', messageReceivedFromHost, false);
 
     function messageReceivedFromHost(event) {
         var data = event.data;

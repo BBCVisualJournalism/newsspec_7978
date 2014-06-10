@@ -31,8 +31,6 @@ define(['jquery'], function ($) {
             });
 
             window.addEventListener('message', externalHostCommunicator.setIFrameIndex, false);
-            // legacy ie
-            window.addEventListener('onmessage', externalHostCommunicator.setIFrameIndex, false);
         },
         forwardPubsubToHost: function (announcement, details) {
             this.sendDataByPostMessage({
