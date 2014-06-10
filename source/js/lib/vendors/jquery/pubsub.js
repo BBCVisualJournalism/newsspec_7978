@@ -50,7 +50,6 @@ define(['jquery'], function($) {
 
     // Publish a topic. Works exactly like trigger.
     $.emit = function() {
-
         o.trigger.apply( o, arguments );
         
         var announcement         = arguments[0],
@@ -69,7 +68,7 @@ define(['jquery'], function($) {
         emittedFromHost = true;
         // shouldn't need this conditional, but PhantomJS/Jasmine complains otherwise.
         if (event.data.announcement) {
-            $.emit(event.data.announcement, [event.data.details]);
+            $.emit(event.data.announcement, event.data.details);
         }
     }
 });

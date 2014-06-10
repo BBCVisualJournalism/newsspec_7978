@@ -7,40 +7,43 @@ define(['lib/news_special/bootstrap', 'lib/news_special/share_tools/controller']
         },
 
         listenForButtonClicks: function () {
+
+            news.$('.facewall_item').on('click', function () {
+                var itemNumber = news.$(this).attr('data-face-number');
+                news.pubsub.emit('item:clicked', [itemNumber]);
+            });
+
             news.$('.change_color_of_all_frames').on('click', function () {
-                news.pubsub.emit('frames:changeColor', 'cyan');
+                var colors = ['#CF0000', 'yellow', 'lime'];
+                news.pubsub.emit('frames:changeColor', [colors]);
             });
 
-            news.$('.change_color_of_frame_2').on('click', function () {
-                news.pubsub.emit('frame2:changeColor', 'red');
-            });
-
-            news.$('.change_color_of_frame_3').on('click', function () {
-                news.pubsub.emit('frame3:changeColor', 'blue');
-            });
-
-            news.$('.send_multiple_arguments').on('click', function () {
-                news.pubsub.emit('frame1:changeColorRandomly', ['black', 'yellow', 'indianred']);
-            });
         },
 
         subscribeToEvents: function () {
-            news.pubsub.on('frames:changeColor', function (color) {
-                news.$('.main').css('background', color);
+
+            var iFrameTester = this;
+
+            news.pubsub.on('item:clicked', function (number) {
+                iFrameTester.highlightFace(number);
+                news.$('.fixedFrame').html('You chose face number ' + number);
             });
 
-            news.pubsub.on('frame1:changeColorRandomly', function (colors) {
-                var randomColor = colors[Math.floor(Math.random() * colors.length)];
-                news.$('.frame1').css('background', randomColor);
+            news.pubsub.on('frames:changeColor', function (colors) {
+                news.$('.mainFrame').css('background', iFrameTester.getRandomColor(colors));
+                news.$('.fixedFrame').css('background', iFrameTester.getRandomColor(colors));
+                news.$('.extraFrame').css('background', iFrameTester.getRandomColor(colors));
             });
+        },
 
-            news.pubsub.on('frame2:changeColor', function (color) {
-                news.$('.frame2').css('background', color);
-            });
+        highlightFace: function (faceNumber) {
+            var face = news.$('.mainFrame .facewall_item[data-face-number="' + faceNumber + '"]');
+            news.$('.facewall_item').removeClass('facewall_item--selected');
+            face.addClass('facewall_item--selected');
+        },
 
-            news.pubsub.on('frame3:changeColor', function (color) {
-                news.$('.frame3').css('background', color);
-            });
+        getRandomColor: function (colors) {
+            return colors[Math.floor(Math.random() * colors.length)];
         }
     };
 
