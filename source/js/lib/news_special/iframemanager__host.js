@@ -11,7 +11,7 @@
     };
 
     IframeWatcher.prototype = {
-        postMessageAvailable: (window.postMessage ? true : false),
+        postMessageAvailable: false, //(window.postMessage ? true : false),
         istatsCanBeUsed: function () {
             return ('require' in window) && this.onBbcDomain();
         },
@@ -53,7 +53,7 @@
             this.elm.allowfullscreen = true;
             this.elm.frameBorder = '0';
 
-            this.decideHowToTalkToIframe(href);
+            this.decideHowToTalkToIframe(href, staticHeight);
 
             this.elm.src = href + '?hostid=' + hostId.split('//')[1] + '&onbbcdomain=' + onBBC + urlParams;
 
@@ -83,7 +83,7 @@
                 this.elm.attachEvent('onload', startIframing);
             }
         },
-        decideHowToTalkToIframe: function (href) {
+        decideHowToTalkToIframe: function (href, staticHeight) {
             if (this.postMessageAvailable) { // if window.postMessage is supported, then support for JSON is assumed
                 var uidForPostMessage = this.getPath(href);
                 this.uidForPostMessage = this.getPath(href);

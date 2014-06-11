@@ -1,7 +1,7 @@
 define(['jquery'], function ($) {
     var hostCommunicator = {
         iFrameIndex: false,
-        postMessageAvailable: (window.postMessage ? true : false),
+        postMessageAvailable: false, //(window.postMessage ? true : false),
         init: function () {
             this.setHeight();
             this.startWatching();
@@ -81,7 +81,7 @@ define(['jquery'], function ($) {
             window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
         },
         sendDataByIframeBridge: function (message) {
-            window.iframeBridge = this.constructMessage(message);
+            window.iframeBridge = hostCommunicator.constructMessage(message);
         },
         constructMessage: function (additionalMessage) {
             var message = {
