@@ -1,10 +1,13 @@
-define(['jquery'], function ($) {
+define(['jquery', 'lib/news_special/iframemanager__frame'], function ($, iframemanager__frame) {
 
     IFrameCommunicator = {
 
         init: function () {
             var externalIFrameCommunicator = this;
-            window.addEventListener('message', externalIFrameCommunicator.messageReceivedFromHost, false);
+
+            if (iframemanager__frame.postMessageAvailable) {
+                window.addEventListener('message', externalIFrameCommunicator.messageReceivedFromHost, false);
+            }
         },
 
         emittedFromHost: false,
@@ -19,7 +22,7 @@ define(['jquery'], function ($) {
         },
 
         messageReceivedFromHost: function (event) {
-            var data = JSON.parse(event.data.split('::')[1]);
+            var data = iframemanager__frame.parseJSONData(event.data);
 
             IFrameCommunicator.emittedFromHost = true;
 

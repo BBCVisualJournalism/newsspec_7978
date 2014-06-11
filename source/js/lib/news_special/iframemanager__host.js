@@ -181,6 +181,9 @@
                 this.iframeInstructionsRan = true;
             } else if (this.data.iFrameReady) {
                 this.setupIframeCommunication();
+            } else {
+                // we've used the iframeBridge instructions so can now clear it
+                this.elm.contentWindow.iframeBridge = false;
             }
         },
         getPath: function (url) {
@@ -227,7 +230,7 @@
                 iFrame.contentWindow.postMessage('newsspec_iframe::' + JSON.stringify(pubsubMessage), '*');
             }
             else {
-                // @TODO communicate via iframe bridge
+                this.elm.contentWindow.iframeBridge = pubsubMessage;
             }
         },
         forwardAnyPubsubsFromIframe: function () {

@@ -43,14 +43,18 @@ define(['jquery'], function ($) {
                 this.sendDataByIframeBridge(data);
             }
         },
-        setIFrameIndex: function (event) {
-            var data = JSON.parse(event.data.split('::')[1]);
-
+        setIFrameIndexFromPost: function (event) {
+            hostCommunicator.setIFrameIndex(hostCommunicator.parseJSONData(event.data));
+        },
+        setIFrameIndex: function (data) {
             if (data.announcement === 'setting_index_from_host') {
                 hostCommunicator.iFrameIndex = data.details[0];
                 // only need to set the iframe index once
                 window.removeEventListener('message', hostCommunicator.setIFrameIndex, false);
             }
+        },
+        parseJSONData: function (jsonData) {
+            return JSON.parse(jsonData.split('::')[1]);
         },
         height: 0,
         registerIstatsCall: function (actionType, actionName, viewLabel) {
@@ -68,12 +72,18 @@ define(['jquery'], function ($) {
         },
         setupPostMessage: function () {
             window.setInterval(this.sendDataByPostMessage, 32);
-            window.addEventListener('message', this.setIFrameIndex, false);
+            window.addEventListener('message', this.setIFrameIndexFromPost, false);
         },
         setupIframeBridge: function () {
-            window.setInterval(this.sendDataByIframeBridge, 100);
+            window.setInterval(this.exchangeDataByIframeBridge, 100);
             window.istatsQueue = [];
-            // @TODO - listen for iframe index via iframe bridge
+        },
+        exchangeDataByIframeBridge: function () {
+            if (window.iframeBridge !== false) {
+                hostCommunicator.setIFrameIndex(window.iframeBridge);
+            } else {
+                hostCommunicator.sendDataByIframeBridge();
+            }
         },
         sendDataByPostMessage: function (message) {
             var talker_uid = window.location.pathname;
