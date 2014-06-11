@@ -1,4 +1,4 @@
-define(['jquery'], function($) {
+define(['jquery', 'lib/news_special/iframemanager__communicator'], function($, IFrameCommunicator) {
     
     /*!
      * jQuery Tiny Pub/Sub - v0.6 - 1/10/2011
@@ -19,8 +19,7 @@ define(['jquery'], function($) {
      */
 
     // Create a "dummy" jQuery object on which to bind, `off` and `trigger` event handlers. 
-    var o = $({}),
-        IFrameCommunicator;
+    var o = $({});
 
     /*
         Subscribe to a topic. Works just like `on`, except the passed handler
@@ -50,45 +49,8 @@ define(['jquery'], function($) {
 
     // Publish a topic. Works exactly like trigger.
     $.emit = function() {
-        console.log(arguments);
         o.trigger.apply( o, arguments );
-        IFrameCommunicator.forwardToHost(arguments);
+        IFrameCommunicator.forwardToHost(arguments[0], arguments[1]);
     };
-
-    var emittedFromHost = false;
-
-    IFrameCommunicator = {
-
-        init: function () {
-            var externalIFrameCommunicator = this;
-            window.addEventListener('message', externalIFrameCommunicator.messageReceivedFromHost, false);
-        },
-
-        //emittedFromHost: false,
-
-        forwardToHost: function () {
-            var announcement = arguments[0],
-                details      = arguments[1];
-
-            if (!emittedFromHost && announcement !== 'event_to_send_to_host') {
-                $.emit('event_to_send_to_host', [announcement, details]);
-            }
-
-            emittedFromHost = false;
-        },
-
-        messageReceivedFromHost: function (event) {
-            var data = JSON.parse(event.data.split('::')[1]);
-
-            emittedFromHost = true;
-
-            // shouldn't need this conditional, but PhantomJS/Jasmine complains otherwise.
-            if (data.announcement) {
-                $.emit(data.announcement, data.details);
-            }
-        }
-    };
-
-    IFrameCommunicator.init();
 
 });

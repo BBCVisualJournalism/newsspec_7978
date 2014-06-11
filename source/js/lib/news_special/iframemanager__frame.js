@@ -49,8 +49,6 @@ define(['jquery'], function ($) {
                 hostCommunicator.iFrameIndex = data.details[0];
                 // only need to set the iframe index once
                 window.removeEventListener('message', hostCommunicator.setIFrameIndex, false);
-
-                console.log('iFrame index: ', hostCommunicator.iFrameIndex);
             }
         },
         height: 0,
