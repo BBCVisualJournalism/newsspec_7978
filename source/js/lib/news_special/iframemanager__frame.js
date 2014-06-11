@@ -14,7 +14,7 @@ define(['jquery'], function ($) {
 
             this.subscribeToEvents();
 
-            this.sendDataByPostMessage({
+            this.sendDataToHost({
                 iFrameReady: true
             });
         },
@@ -27,22 +27,23 @@ define(['jquery'], function ($) {
             });
 
             $.on('event_to_send_to_host', function (announcement, details) {
-                externalHostCommunicator.forwardPubsubToHost(announcement, details);
+                externalHostCommunicator.sendDataToHost({
+                    pubsub: {
+                        originator:   externalHostCommunicator.iFrameIndex,
+                        announcement: announcement,
+                        details:      details
+                    }
+                });
             });
-
-            window.addEventListener('message', externalHostCommunicator.setIFrameIndex, false);
         },
-        forwardPubsubToHost: function (announcement, details) {
-            this.sendDataByPostMessage({
-                pubsub: {
-                    originator:   this.iFrameIndex,
-                    announcement: announcement,
-                    details:      details
-                }
-            });
+        sendDataToHost: function (data) {
+            if (this.postMessageAvailable) {
+                this.sendDataByPostMessage(data);
+            } else {
+                this.sendDataByIframeBridge(data);
+            }
         },
         setIFrameIndex: function (event) {
-
             var data = JSON.parse(event.data.split('::')[1]);
 
             if (data.announcement === 'setting_index_from_host') {
@@ -67,27 +68,28 @@ define(['jquery'], function ($) {
         },
         setupPostMessage: function () {
             window.setInterval(this.sendDataByPostMessage, 32);
-        },
-        sendDataByPostMessage: function (additionalMessage) {
-            var talker_uid = window.location.pathname,
-                message = {
-                    height:           this.height,
-                    hostPageCallback: hostCommunicator.hostPageCallback
-                };
-
-            $.extend(message, additionalMessage || {});
-
-            window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
+            window.addEventListener('message', externalHostCommunicator.setIFrameIndex, false);
         },
         setupIframeBridge: function () {
             window.setInterval(this.sendDataByIframeBridge, 100);
             window.istatsQueue = [];
+            // @TODO - listen for iframe index via iframe bridge
         },
-        sendDataByIframeBridge: function () {
-            window.iframeBridge = {
+        sendDataByPostMessage: function (message) {
+            var talker_uid = window.location.pathname;
+            message = this.constructMessage(message);
+            window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
+        },
+        sendDataByIframeBridge: function (message) {
+            window.iframeBridge = this.constructMessage(message);
+        },
+        constructMessage: function (additionalMessage) {
+            var message = {
                 height:           this.height,
                 hostPageCallback: this.hostPageCallback
             };
+            $.extend(message, additionalMessage || {});
+            return message;
         },
         startWatching: function () {
             window.setInterval(this.setHeight, 32);

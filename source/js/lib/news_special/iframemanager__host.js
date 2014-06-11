@@ -11,6 +11,7 @@
     };
 
     IframeWatcher.prototype = {
+        postMessageAvailable: (window.postMessage ? true : false),
         istatsCanBeUsed: function () {
             return ('require' in window) && this.onBbcDomain();
         },
@@ -83,13 +84,15 @@
             }
         },
         decideHowToTalkToIframe: function (href) {
-            if (window.postMessage) { // if window.postMessage is supported, then support for JSON is assumed
+            if (this.postMessageAvailable) { // if window.postMessage is supported, then support for JSON is assumed
                 var uidForPostMessage = this.getPath(href);
                 this.uidForPostMessage = this.getPath(href);
                 this.setupPostMessage(uidForPostMessage);
+                this.methodOfCommunication = 'post';
             }
             else if (href.search(window.location.protocol + '//' + window.location.hostname) > -1) {
                 this.setupIframeBridge();
+                this.methodOfCommunication = 'bridge';
             }
             else {
                 this.data.height = staticHeight;
@@ -221,6 +224,14 @@
                 details:      [iFrameIndex]
             });
         },
+        forwardPubsubToIFrame: function (iFrame, pubsubMessage) {
+            if (this.postMessageAvailable) {
+                iFrame.contentWindow.postMessage('newsspec_iframe::' + JSON.stringify(pubsubMessage), '*');
+            }
+            else {
+                // @TODO communicate via iframe bridge
+            }
+        },
         forwardAnyPubsubsFromIframe: function () {
             var iFrameThatSentThePubsub;
             
@@ -237,9 +248,6 @@
                     this.forwardPubsubToIFrame(iframes[i], this.data.pubsub);
                 }
             }
-        },
-        forwardPubsubToIFrame: function (iFrame, pubsubMessage) {
-            iFrame.contentWindow.postMessage('newsspec_iframe::' + JSON.stringify(pubsubMessage), '*');
         }
     };
 
