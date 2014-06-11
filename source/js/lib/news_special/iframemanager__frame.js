@@ -68,7 +68,7 @@ define(['jquery'], function ($) {
         },
         setupPostMessage: function () {
             window.setInterval(this.sendDataByPostMessage, 32);
-            window.addEventListener('message', externalHostCommunicator.setIFrameIndex, false);
+            window.addEventListener('message', this.setIFrameIndex, false);
         },
         setupIframeBridge: function () {
             window.setInterval(this.sendDataByIframeBridge, 100);
@@ -77,7 +77,7 @@ define(['jquery'], function ($) {
         },
         sendDataByPostMessage: function (message) {
             var talker_uid = window.location.pathname;
-            message = this.constructMessage(message);
+            message = hostCommunicator.constructMessage(message);
             window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
         },
         sendDataByIframeBridge: function (message) {
@@ -85,8 +85,8 @@ define(['jquery'], function ($) {
         },
         constructMessage: function (additionalMessage) {
             var message = {
-                height:           this.height,
-                hostPageCallback: this.hostPageCallback
+                height:           hostCommunicator.height,
+                hostPageCallback: hostCommunicator.hostPageCallback
             };
             $.extend(message, additionalMessage || {});
             return message;
@@ -103,7 +103,7 @@ define(['jquery'], function ($) {
             if ($('.main').length > 0) {
                 heightValues.push($('.main')[0].scrollHeight);
             }
-            this.height = Math.max.apply(Math, heightValues);
+            hostCommunicator.height = Math.max.apply(Math, heightValues);
         },
         hostPageCallback: false,
         setHostPageInitialization: function (callback) {
