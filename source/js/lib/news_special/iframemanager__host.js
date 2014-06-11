@@ -88,11 +88,9 @@
                 var uidForPostMessage = this.getPath(href);
                 this.uidForPostMessage = this.getPath(href);
                 this.setupPostMessage(uidForPostMessage);
-                this.methodOfCommunication = 'post';
             }
             else if (href.search(window.location.protocol + '//' + window.location.hostname) > -1) {
                 this.setupIframeBridge();
-                this.methodOfCommunication = 'bridge';
             }
             else {
                 this.data.height = staticHeight;
