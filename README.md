@@ -8,13 +8,25 @@ I didn't want the developer to have to change their workflow - JS modules should
 
 ## How it works
 
-I've made changes to pubsub.js, iframemanager__host.js and iframemanager__frame.js.
+We have communication between the iFrame manager *host* and *frame* via a *communicator*.
 
-When the iFrame is instantiated (in iframemanager__host), a reference to it is stored in a global JavaScript array `newsspec_iframes_subscribed`.
+### From the host's perspective
 
-iframemanager__frame.js sends JSON back to the host in a setTimeout loop calling the function `sendDataByPostMessage`. When the application has instantiated, the frame notifies the host through this function. The host then sends a post message to the iFrame telling it what index iFrame it is.
+When an iFrame is instantiated in *the host* ("iframemanager__host.js"), a reference to it is stored in a global JavaScript array `newsspec_iframes_subscribed`.
 
-As the application runs, if an event is emitted it is picked up in pubsub.js and forwarded to the host (via the frame). The host then forwards to all of the other iFrames on the page (using the index to not send the event back to the original iframe, which would cause an infinite loop).
+If the iFrame emits a pubsub message, the pubsub bubbles its way up to the host (see how in the next section). The host then checks the global array of iFrames that have been added to the page and iterates through them, forwarding the pubsub to those iFrames. The host also has logic that prevents it forwarding pubsubs back to the iFrame that originally sent the message.
+
+### From the iFrame's perspective
+
+"pubsub.js" has been extended slightly to pull in *the iFrame communicator* ("iframemanager__communicator.js"). Whenever an event is emitted via pubsub, it is also passed to the communicator.
+
+The communicator packages the pubsub into another pubsub, "event_to_send_to_host". It then emits this like a normal pubsub. The communicator has logic so that it doesn't forward "event_to_send_to_host" in an infinite loop.
+
+*The frame* ("iframemanager__frame.js") listens for the "event_to_send_to_host" event and forwards it to the host. It also tells the host which iFrame it is, so that the host can avoid forwarding the pubsub back to the original iFrame.
+
+The frame knows which iFrame it is because, on load, it informs the host it is ready to start receiving messages; the host then allocates it an index based on the number of iFrames already in the global array of iFrames. The frame passes this index back to the host along with the pubsubs that it forwards.
+
+When the host forwards the pubsub to each iFrame, the pubsub is picked up by the communicator, which emits the pubsub to the other JS modules in the frame. The communicator contains logic to stop it emitting an "event_to_send_to_host" pubsub when it received the pubsub *from* the host.
 
 ## iFrame scaffold
 
