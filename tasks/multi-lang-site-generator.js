@@ -6,13 +6,13 @@ module.exports = function (grunt) {
     // *************************************************************************
 
     var projectFiles = {
-        'frame_1.html': 'frame_1.html.tmpl',
-        'frame_2.html': 'frame_2.html.tmpl',
-        'frame_3.html': 'frame_3.html.tmpl',
-        'frame_1.inc':  'frame_1.inc.tmpl',
-        'frame_2.inc':  'frame_2.inc.tmpl',
-        'frame_3.inc':  'frame_3.inc.tmpl',
-        'test.html':    'test.html.tmpl'
+        'frame_main.html':  'frame_main.html.tmpl',
+        'frame_fixed.html': 'frame_fixed.html.tmpl',
+        'frame_extra.html': 'frame_extra.html.tmpl',
+        'frame_main.inc':   'frame_main.inc.tmpl',
+        'frame_fixed.inc':  'frame_fixed.inc.tmpl',
+        'frame_extra.inc':  'frame_extra.inc.tmpl',
+        'test.html':        'test.html.tmpl'
     };
 
     // *************************************************************************

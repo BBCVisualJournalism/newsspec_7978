@@ -1,7 +1,5 @@
 define(['jquery'], function ($) {
 
-    var emittedFromHost = false;
-
     IFrameCommunicator = {
 
         init: function () {
@@ -9,21 +7,21 @@ define(['jquery'], function ($) {
             window.addEventListener('message', externalIFrameCommunicator.messageReceivedFromHost, false);
         },
 
-        //emittedFromHost: false,
+        emittedFromHost: false,
 
         forwardToHost: function (announcement, details) {
 
-            if (!emittedFromHost && announcement !== 'event_to_send_to_host') {
+            if (!IFrameCommunicator.emittedFromHost && announcement !== 'event_to_send_to_host') {
                 $.emit('event_to_send_to_host', [announcement, details]);
             }
 
-            emittedFromHost = false;
+            IFrameCommunicator.emittedFromHost = false;
         },
 
         messageReceivedFromHost: function (event) {
             var data = JSON.parse(event.data.split('::')[1]);
 
-            emittedFromHost = true;
+            IFrameCommunicator.emittedFromHost = true;
 
             // shouldn't need this conditional, but PhantomJS/Jasmine complains otherwise.
             if (data.announcement) {

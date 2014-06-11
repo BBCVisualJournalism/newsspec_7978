@@ -1,0 +1,17 @@
+<%= include('includes/top.tmpl') %>
+
+    <div class="main mainFrame">
+    	<ul class="facewall">
+            <% 
+                var numbers = [];
+                for (var i = 1; i <= 1000; i++) { numbers.push(i); };
+
+                _(numbers).forEach(function (num) {
+            %>
+            <li class="facewall_item" data-face-number="<%= num %>"><%= num %></li>
+            <%
+                });
+            %>
+    </div>
+
+<%= include('includes/bottom.tmpl') %>
