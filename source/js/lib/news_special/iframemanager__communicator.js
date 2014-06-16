@@ -1,4 +1,4 @@
-define(['jquery'], function ($) {
+define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, parser) {
 
     IFrameCommunicator = {
 
@@ -19,7 +19,7 @@ define(['jquery'], function ($) {
         },
 
         messageReceivedFromHost: function (event) {
-            var data = JSON.parse(event.data.split('::')[1]);
+            var data = parser.parseJSON(event);
 
             IFrameCommunicator.emittedFromHost = true;
 

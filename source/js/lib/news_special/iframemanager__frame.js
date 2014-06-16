@@ -1,4 +1,4 @@
-define(['jquery'], function ($) {
+define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, parser) {
     var hostCommunicator = {
         iFrameIndex: false,
         postMessageAvailable: (window.postMessage ? true : false),
@@ -43,7 +43,7 @@ define(['jquery'], function ($) {
         },
         setIFrameIndex: function (event) {
 
-            var data = JSON.parse(event.data.split('::')[1]);
+            var data = parser.parseJSON(event);
 
             if (data.announcement === 'setting_index_from_host') {
                 hostCommunicator.iFrameIndex = data.details[0];
