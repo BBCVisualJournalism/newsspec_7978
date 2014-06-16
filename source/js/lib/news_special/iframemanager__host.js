@@ -11,6 +11,7 @@
     };
 
     IframeWatcher.prototype = {
+        postMessageAvailable: (window.postMessage ? true : false),
         istatsCanBeUsed: function () {
             return ('require' in window) && this.onBbcDomain();
         },
@@ -239,7 +240,12 @@
             }
         },
         forwardPubsubToIFrame: function (iFrame, pubsubMessage) {
-            iFrame.contentWindow.postMessage('newsspec_iframe::' + JSON.stringify(pubsubMessage), '*');
+            if (this.postMessageAvailable) {
+                iFrame.contentWindow.postMessage('newsspec_iframe::' + JSON.stringify(pubsubMessage), '*');
+            }
+            else {
+                // communicate through iFrame bridge or cookie fallback
+            }
         }
     };
 

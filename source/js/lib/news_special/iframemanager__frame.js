@@ -14,7 +14,7 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
 
             this.subscribeToEvents();
 
-            this.sendDataByPostMessage({
+            this.sendDataToHost({
                 iFrameReady: true
             });
         },
@@ -27,29 +27,37 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
             });
 
             $.on('event_to_send_to_host', function (announcement, details) {
-                externalHostCommunicator.forwardPubsubToHost(announcement, details);
-            });
-
-            window.addEventListener('message', externalHostCommunicator.setIFrameIndex, false);
-        },
-        forwardPubsubToHost: function (announcement, details) {
-            this.sendDataByPostMessage({
-                pubsub: {
-                    originator:   this.iFrameIndex,
-                    announcement: announcement,
-                    details:      details
-                }
+                externalHostCommunicator.sendDataToHost({
+                    pubsub: {
+                        originator:   externalHostCommunicator.iFrameIndex,
+                        announcement: announcement,
+                        details:      details
+                    }
+                });
             });
         },
-        setIFrameIndex: function (event) {
-
-            var data = parser.parseJSON(event);
-
-            if (data.announcement === 'setting_index_from_host') {
-                hostCommunicator.iFrameIndex = data.details[0];
-                // only need to set the iframe index once
-                window.removeEventListener('message', hostCommunicator.setIFrameIndex, false);
+        sendDataToHost: function (data) {
+            if (this.postMessageAvailable) {
+                this.sendDataByPostMessage(data);
+            } else {
+                this.sendDataByIframeBridge(data);
             }
+        },
+        sendDataByPostMessage: function (message) {
+            var talker_uid = window.location.pathname;
+            message = hostCommunicator.constructMessage(message);
+            window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
+        },
+        sendDataByIframeBridge: function (message) {
+            window.iframeBridge = hostCommunicator.constructMessage(message);
+        },
+        constructMessage: function (additionalMessage) {
+            var message = {
+                height:           hostCommunicator.height,
+                hostPageCallback: hostCommunicator.hostPageCallback
+            };
+            $.extend(message, additionalMessage || {});
+            return message;
         },
         height: 0,
         registerIstatsCall: function (actionType, actionName, viewLabel) {
@@ -67,27 +75,28 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
         },
         setupPostMessage: function () {
             window.setInterval(this.sendDataByPostMessage, 32);
-        },
-        sendDataByPostMessage: function (additionalMessage) {
-            var talker_uid = window.location.pathname,
-                message = {
-                    height:           this.height,
-                    hostPageCallback: hostCommunicator.hostPageCallback
-                };
-
-            $.extend(message, additionalMessage || {});
-
-            window.parent.postMessage(talker_uid + '::' + JSON.stringify(message), '*');
+            window.addEventListener('message', this.setIFrameIndexFromPost, false);
         },
         setupIframeBridge: function () {
-            window.setInterval(this.sendDataByIframeBridge, 100);
+            window.setInterval(this.exchangeDataByIframeBridge, 100);
             window.istatsQueue = [];
         },
-        sendDataByIframeBridge: function () {
-            window.iframeBridge = {
-                height:           this.height,
-                hostPageCallback: this.hostPageCallback
-            };
+        exchangeDataByIframeBridge: function () {
+            if (window.iframeBridge !== false) {
+                hostCommunicator.setIFrameIndex(window.iframeBridge);
+            } else {
+                hostCommunicator.sendDataByIframeBridge();
+            }
+        },
+        setIFrameIndexFromPost: function (event) {
+            hostCommunicator.setIFrameIndex(parser.parseJSON(event));
+        },
+        setIFrameIndex: function (data) {
+            if (data.announcement === 'setting_index_from_host') {
+                hostCommunicator.iFrameIndex = data.details[0];
+                // only need to set the iframe index once
+                window.removeEventListener('message', hostCommunicator.setIFrameIndex, false);
+            }
         },
         startWatching: function () {
             window.setInterval(this.setHeight, 32);
@@ -101,7 +110,7 @@ define(['jquery', 'lib/news_special/iframemanager__jsonparser'], function ($, pa
             if ($('.main').length > 0) {
                 heightValues.push($('.main')[0].scrollHeight);
             }
-            this.height = Math.max.apply(Math, heightValues);
+            hostCommunicator.height = Math.max.apply(Math, heightValues);
         },
         hostPageCallback: false,
         setHostPageInitialization: function (callback) {
